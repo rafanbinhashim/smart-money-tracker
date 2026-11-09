@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111111"><meta name="description" content="Private offline money tracker">
+<link rel="stylesheet" href="styles.css"><title>Smart Money Tracker</title>
+</head>
+<body>
+<div id="lockScreen" class="lock-screen">
+  <div class="lock-card">
+    <div class="brand"><div class="brand-mark">S</div><div><div class="brand-name">Smart Money</div><div class="brand-sub">PERSONAL FINANCE</div></div></div>
+    <h1 id="lockTitle">Your money, clearly.</h1>
+    <p id="lockIntro">Your money data is encrypted on this device.</p>
+    <div id="lockWarning" class="notice warning">Create a password you can remember. You must use it every time you open the app. There is no password recovery. If you forget it, your saved transactions cannot be recovered.</div>
+    <form id="lockForm">
+      <label id="passwordLabel" for="passwordInput">Create password</label>
+      <input id="passwordInput" type="password" autocomplete="new-password" required minlength="6" placeholder="At least 6 characters">
+      <label id="confirmLabel" for="confirmInput" hidden>Confirm password</label>
+      <input id="confirmInput" type="password" autocomplete="new-password" hidden placeholder="Enter password again">
+      <p id="lockError" class="error" aria-live="polite"></p>
+      <button class="primary-btn full" id="unlockButton" type="submit">Create password</button>
+    </form>
+  </div>
+</div>
+<div id="app" hidden>
+ <div class="app-shell">
+  <header class="topbar">
+   <div class="brand"><div class="brand-mark">S</div><div><div class="brand-name">Smart Money</div><div class="brand-sub">PERSONAL FINANCE</div></div></div>
+   <div class="head-actions"><button id="settingsBtn" class="icon-btn" aria-label="Settings">⚙</button><button id="lockNow" class="icon-btn" aria-label="Lock app">⌑</button></div>
+  </header>
+  <main>
+   <section class="hero-card">
+    <div class="hero-top"><div class="eyebrow"><span class="live-dot"></span> YOUR MONEY AT A GLANCE</div>
+     <label class="currency-label">DISPLAY CURRENCY <select id="currency"></select></label></div>
+    <div class="balance-line"><span id="balance">₹0.00</span><span class="balance-label">Current balance</span></div>
+    <div class="hero-bottom"><span id="rateStatus">Exchange rates not yet updated</span><span id="lastUpdated">—</span></div>
+   </section>
+   <section class="summary-grid">
+    <article class="summary-card"><div class="summary-heading"><span class="summary-icon">↗</span> TOTAL INCOME</div><div class="summary-value" id="incomeTotal">₹0.00</div><div class="summary-note">Converted to display currency</div></article>
+    <article class="summary-card"><div class="summary-heading"><span class="summary-icon">↘</span> TOTAL EXPENSES</div><div class="summary-value" id="expenseTotal">₹0.00</div><div class="summary-note">Converted to display currency</div></article>
+   </section>
+   <section class="section-head"><div><div class="section-kicker">YOUR RECORDS</div><h1>Transactions</h1></div><button id="addTransaction" class="primary-btn"><span>＋</span> Add Transaction</button></section>
+   <div class="toolbar">
+    <label class="search-wrap"><span>⌕</span><input id="search" placeholder="Search date, amount, category or note"></label>
+    <select id="typeFilter"><option value="all">All types</option><option value="income">Income</option><option value="expense">Expense</option></select>
+   </div>
+   <div class="filters"><label>From <input id="fromDate" type="date"></label><label>To <input id="toDate" type="date"></label><select id="sort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="highest">Highest amount</option><option value="lowest">Lowest amount</option></select></div>
+   <div id="transactionList" class="transaction-list"></div>
+   <div id="emptyState" class="empty-state"><div class="empty-icon">＋</div><h2>No transactions yet</h2><p>Add your first income or expense to start seeing your money clearly.</p><button class="outline-btn" id="emptyAdd">Add your first transaction</button></div>
+   <section class="tools-row"><div><div class="section-kicker">BACKUP & SECURITY</div><h2>Your data stays on this device</h2><p>Export an encrypted backup regularly. Your backup can only be opened with the password active when it was created.</p></div><div class="tool-buttons"><button id="exportBtn" class="outline-btn">Export backup</button><label class="outline-btn upload">Import backup<input id="importFile" type="file" accept="application/json"></label></div></section>
+   <footer>PRIVATE BY DESIGN <span>·</span> STORED ON THIS DEVICE <span>·</span> OFFLINE READY</footer>
+  </main>
+ </div>
+</div>
+
+<dialog id="transactionDialog" class="modal">
+ <form id="transactionForm">
+  <div class="modal-head"><div><div class="section-kicker">RECORD A TRANSACTION</div><h2 id="formTitle">New transaction</h2></div><button type="button" class="close-btn" data-close="transactionDialog" aria-label="Close">×</button></div>
+  <div class="type-switch"><button type="button" class="type-btn active" data-type="expense">Expense</button><button type="button" class="type-btn" data-type="income">Income</button></div>
+  <label class="field"><span>Amount <b id="amountCurrency">INR</b></span><div class="amount-input"><span id="amountSymbol">₹</span><input id="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required></div></label>
+  <div class="form-grid"><label class="field"><span>Category</span><input id="category" maxlength="40" placeholder="e.g. Food" required></label><label class="field"><span>Date</span><input id="date" type="date" required></label></div>
+  <label class="field"><span>Note (optional)</span><textarea id="note" maxlength="120" rows="2" placeholder="Add a short note"></textarea></label>
+  <div class="date-tools"><label class="checkline"><input type="checkbox" id="repeatMode"> Repeat Date</label><label class="checkline"><input type="checkbox" id="advanceMode"> Advance Date</label><label class="field mode-date"><span>Mode date</span><input type="date" id="modeDate"></label></div>
+  <p class="hint">Repeat Date keeps using the selected date. Advance Date moves forward one day after each saved transaction. Only one mode can be active.</p>
+  <p class="form-error" id="formError"></p>
+  <div class="modal-actions"><button type="button" class="outline-btn" id="cancelEdit">Cancel</button><button type="submit" class="primary-btn" id="saveButton">Save transaction</button></div>
+ </form>
+</dialog>
+
+<dialog id="settingsDialog" class="modal">
+ <div class="modal-head"><div><div class="section-kicker">PREFERENCES</div><h2>Settings</h2></div><button type="button" class="close-btn" data-close="settingsDialog" aria-label="Close">×</button></div>
+ <label class="field"><span>Display currency</span><select id="currencySelect"></select></label>
+ <p class="settings-note">Changing display currency recalculates the values shown using the latest available exchange rates. Your original transaction amounts and currencies are never changed. Values can move as exchange rates change.</p>
+ <div class="settings-divider"></div>
+ <button class="outline-btn" id="changePassword">Change password</button>
+ <p class="settings-note">You must enter your current password, enter the new password twice, and confirm the change. There is no password recovery.</p>
+ <div class="settings-divider"></div>
+ <button class="outline-btn" id="refreshRates">Refresh exchange rates</button>
+ <p class="settings-note" id="settingsRateStatus">Rates refresh when the app is open and connected to the internet. When offline, the last saved rates are used.</p>
+ <div class="settings-divider"></div>
+ <button class="danger-btn" id="clearData">Delete all transactions</button>
+ <p class="settings-note">This permanently removes saved transactions on this device.</p>
+ <div class="modal-actions"><button class="primary-btn" data-close="settingsDialog">Done</button></div>
+</dialog>
+<dialog id="confirmDialog" class="modal"><div class="modal-head"><h2 id="confirmTitle">Confirm</h2><button class="close-btn" data-close="confirmDialog">×</button></div><p id="confirmText"></p><div class="modal-actions"><button class="outline-btn" data-close="confirmDialog">Cancel</button><button class="primary-btn" id="confirmContinue">Continue</button></div></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body></html>
